@@ -127,37 +127,11 @@ namespace MameFileWatcher
 
 
             var fileContent = this.CreateFileContent(new FileStream(filename, System.IO.FileMode.Open), System.IO.Path.GetFileName(filename), "application/octet-stream");
-
-            // Convert each of the three inputs into HttpContent objects
-
-            //HttpContent stringContent = new StringContent(filename);
-            // examples of converting both Stream and byte [] to HttpContent objects
-            // representing input type file
-            //HttpContent fileStreamContent = new StreamContent(fileContent);
-
-           // HttpContent bytesContent = new ByteArrayContent(File.ReadAllBytes(filename));
-
-            // Submit the form using HttpClient and 
-            // create form data as Multipart (enctype="multipart/form-data")
-
+            
             using (var client = new HttpClient())
             using (var formData = new MultipartFormDataContent())
-            {
-                // Add the HttpContent objects to the form data
-
-                // <input type="text" name="filename" />
-                // formData.Add(stringContent, "file", filename);
-                // <input type="file" name="file1" />
-                //formData.Add(fileStreamContent, "file1", "file1");
-                // <input type="file" name="file2" />
-
-                //formData.Add(bytesContent, "\"file-bob\"", "\"" + System.IO.Path.GetFileName(filename) + "\"");
-
+            {   
                 formData.Add(fileContent);
-
-                // Actually invoke the request to the server
-
-                // equivalent to (action="{url}" method="post")
                 var response = client.PostAsync(url, formData).Result;
 
                 // equivalent of pressing the submit button on the form
@@ -177,17 +151,12 @@ namespace MameFileWatcher
                 {
                     Uri baseUrl = new Uri(this.tbSiteUrl.Text);
                     Uri serverAddress = new Uri(baseUrl, "/game/upload/" + this.tbApiKey.Text + "?gamename=" + gameName);
-
-                    //string response = Encoding.ASCII.GetString(client.UploadFile(serverAddress, filePath));
-                    //Console.WriteLine(response);
-
-
+                    
                     using (Stream s = this.Upload(serverAddress.ToString(), filePath))
                     using (StreamReader sr = new StreamReader(s))
                     {
                         Console.WriteLine(sr.ReadToEnd());
                     }
-
 
                 }
                 catch (WebException ex)
@@ -213,9 +182,6 @@ namespace MameFileWatcher
                 {
                     Console.WriteLine("Problem uploading file. Exception: " + ex.Message);
                 }
-
-             //   client.Dispose();
-             //   GC.Collect();
             }
 
 
@@ -231,8 +197,7 @@ namespace MameFileWatcher
                 textBoxControl.Text = dialog.SelectedPath;
             }
         }
-
-        //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+        
         private void WatchFolders()
         {
             string hiPath = this.tbHiPath.Text;
@@ -254,9 +219,7 @@ namespace MameFileWatcher
             nvWatcher.EnableRaisingEvents = true;
 
         }
-
-        //only want to 
-        //private bool handlingEvent = false;
+        
         private System.Timers.Timer changeEventTimerHi = new System.Timers.Timer();
         private System.Timers.Timer changeEventTimerNv = new System.Timers.Timer();
 
@@ -324,7 +287,7 @@ namespace MameFileWatcher
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.UploadFile("D:\\Emulators\\MameUIFX64\\hi\\boggy84.hi", "boggy84");
+            this.UploadFile("TODO", "TODO");
         }
 
 
