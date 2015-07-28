@@ -75,7 +75,7 @@ namespace MameFileWatcher
                     string download = Encoding.ASCII.GetString(myDataBuffer);
 
                     string messageBoxText = "Everything looks ok";
-                    string caption = "Sucess!";
+                    string caption = "Success!";
                     MessageBoxButton button = MessageBoxButton.OK;
                     MessageBoxImage icon = MessageBoxImage.Information;
 
@@ -84,11 +84,34 @@ namespace MameFileWatcher
                     Console.WriteLine(client.ResponseHeaders.ToString());
                     Console.WriteLine(download);
                 }
+                catch (WebException webEx)
+                {
+                    var resp = new StreamReader(webEx.Response.GetResponseStream()).ReadToEnd();
+                    
+                    System.Web.Script.Serialization.JavaScriptSerializer jsSer = new System.Web.Script.Serialization.JavaScriptSerializer();
+
+                    Dictionary<string, object> error = (Dictionary < string, object> )jsSer.DeserializeObject(resp);
+
+                    string messageBoxText = (string)error["error"];
+                    if (error.ContainsKey("error"))
+                    {
+                        messageBoxText = (string)error["error"];
+                    }
+                    else
+                    {
+                        messageBoxText = "Unknown Error";
+                    }
+                    
+                    string caption = webEx.Message;
+                    MessageBoxButton button = MessageBoxButton.OK;
+                    MessageBoxImage icon = MessageBoxImage.Error;
+
+                    MessageBox.Show(messageBoxText, caption, button, icon);
+                }
                 catch (Exception ex)
                 {
-
                     string messageBoxText = "Somthing is not right. Error was: " + ex.Message;
-                    string caption = "Failed!";
+                    string caption = "Error!";
                     MessageBoxButton button = MessageBoxButton.OK;
                     MessageBoxImage icon = MessageBoxImage.Error;
 
@@ -103,6 +126,25 @@ namespace MameFileWatcher
             this.Close();
         }
 
+        private void btnUploadFile_Click(object sender, RoutedEventArgs e)
+        {
+
+            //TODO: need to work out the interface for manually selecting files
+            //the user needs to be able to privide a game name, or have some smarts and try and work it out
+
+
+            //allow a user to manually upload a file
+            //Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            
+            //Nullable<bool> result = dlg.ShowDialog();
+                        
+            //if (result == true)
+            //{
+            //    // Open document 
+            //    string filename = dlg.FileName;
+            //    this.UploadFile(dlg.FileName, "");
+            //}
+        }
 
         private StreamContent CreateFileContent(Stream stream, string fileName, string contentType)
         {
@@ -122,11 +164,14 @@ namespace MameFileWatcher
         //     <input type="file" name="file1" />
         //     <input type="file" name="file2" />
         // </form>
-        private System.IO.Stream Upload(string url, string filename)
+        private Stream Upload(string url, string filename)
         {
 
 
-            var fileContent = this.CreateFileContent(new FileStream(filename, System.IO.FileMode.Open), System.IO.Path.GetFileName(filename), "application/octet-stream");
+            var fileContent = this.CreateFileContent(
+                new FileStream(filename, System.IO.FileMode.Open), 
+                System.IO.Path.GetFileName(filename), 
+                "application/octet-stream");
             
             using (var client = new HttpClient())
             using (var formData = new MultipartFormDataContent())
@@ -285,13 +330,6 @@ namespace MameFileWatcher
             Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            this.UploadFile("TODO", "TODO");
-        }
-
-
-
-
+        
     }
 }
