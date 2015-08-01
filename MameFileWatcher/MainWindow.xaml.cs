@@ -34,6 +34,8 @@ namespace MameFileWatcher
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.lblVersion.Content = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
             this.changeEventTimerHi.Interval = 1000;
             this.changeEventTimerHi.Elapsed += changeEventTimer_Elapsed;
             this.changeEventTimerHi.AutoReset = false;
@@ -119,6 +121,11 @@ namespace MameFileWatcher
                 }
 
             }
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -247,21 +254,26 @@ namespace MameFileWatcher
         {
             string hiPath = this.tbHiPath.Text;
             string nvPath = this.tbNvPath.Text;
-            
-            FileSystemWatcher hiWatcher = new FileSystemWatcher(hiPath, "*.hi");
-            FileSystemWatcher nvWatcher = new FileSystemWatcher(nvPath);
 
-            hiWatcher.NotifyFilter = NotifyFilters.LastWrite;            
-            hiWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChanged);
-            hiWatcher.Created += new FileSystemEventHandler(FileWatcherOnChanged);
-            hiWatcher.EnableRaisingEvents = true;
+            if(System.IO.Directory.Exists(hiPath))
+            {
+                FileSystemWatcher hiWatcher = new FileSystemWatcher(hiPath, "*.hi");
+                hiWatcher.NotifyFilter = NotifyFilters.LastWrite;            
+                hiWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChanged);
+                hiWatcher.Created += new FileSystemEventHandler(FileWatcherOnChanged);
+                hiWatcher.EnableRaisingEvents = true;
+            }
 
-            nvWatcher.NotifyFilter = NotifyFilters.LastWrite;
-            nvWatcher.IncludeSubdirectories = true;
+            if(System.IO.Directory.Exists(nvPath))
+            {
+                FileSystemWatcher nvWatcher = new FileSystemWatcher(nvPath);
+                nvWatcher.NotifyFilter = NotifyFilters.LastWrite;
+                nvWatcher.IncludeSubdirectories = true;
 
-            nvWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChanged);
-            nvWatcher.Created += new FileSystemEventHandler(FileWatcherOnChanged);
-            nvWatcher.EnableRaisingEvents = true;
+                nvWatcher.Changed += new FileSystemEventHandler(FileWatcherOnChanged);
+                nvWatcher.Created += new FileSystemEventHandler(FileWatcherOnChanged);
+                nvWatcher.EnableRaisingEvents = true;
+            }
 
         }
         
@@ -329,6 +341,8 @@ namespace MameFileWatcher
             // Specify what is done when a file is renamed.
             Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
         }
+
+        
 
         
     }
